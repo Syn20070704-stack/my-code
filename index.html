@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>大学生记账本</title>
+</head>
+<body>
+    <h1>我的每日额度</h1>
+    
+    <!-- 输入框 -->
+    <p>今天花了多少钱：<input type="number" id="spendInput"></p>
+    
+    <!-- 按钮 -->
+    <button onclick="calculate()">记账并计算明天额度</button>
+    
+    <!-- 显示结果 -->
+    <h2 id="resultText">当前额度：100 元/天</h2>
+
+    <script>
+        // 初始数据（假设每月3000，今天第一天，所以有3000余额和30天）
+        let totalMoney = 3000;
+        let leftDays = 30;
+        
+        function calculate() {
+            // 1. 获取你输入的花费金额
+            let spend = document.getElementById("spendInput").value;
+            
+            // 把文字转成数字
+            spend = Number(spend); 
+
+            // 2. 扣除今天的钱，天数减1
+            totalMoney = totalMoney - spend;
+            leftDays = leftDays - 1;
+
+            // 3. 核心算法：计算明天的额度
+            let tomorrowQuota = totalMoney / leftDays;
+
+            // 4. 把结果显示在网页上
+            document.getElementById("resultText").innerText = 
+                "剩余总金额：" + totalMoney + " 元，剩余 " + leftDays + " 天，明天的额度是：" + tomorrowQuota.toFixed(2) + " 元/天";
+        }
+    </script>
+</body>
+</html>
