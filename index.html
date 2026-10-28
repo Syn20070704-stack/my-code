@@ -3,23 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>每日额度管家</title>
+    <title>每日额度管家 Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <style>
-        /* --- 核心极简配色 --- */
+        /* --- 基础极简配置 --- */
         :root {
-            --bg-color: #F7F8FA; /* 极浅的灰白色背景 */
-            --card-bg: #FFFFFF; /* 纯白卡片 */
-            --text-main: #111111; /* 碳黑色文字 */
-            --text-sub: #888888; /* 浅灰色辅助文字 */
-            --accent-color: #111111; /* 按钮用纯黑，非常高级 */
-            --danger-color: #E55353; /* 克制而高级的柔和红 */
-            --success-color: #2B8A3E; /* 低调的深绿 */
-            --border-color: #E5E5EA; /* 极浅的描边 */
+            --bg-color: #F7F8FA;
+            --card-bg: #FFFFFF;
+            --text-main: #111111;
+            --text-sub: #888888;
+            --accent-color: #111111;
+            --danger-color: #E55353;
+            --success-color: #2B8A3E;
+            --border-color: #E5E5EA;
+        }
+
+        /* --- 粉色主题 --- */
+        body.theme-pink {
+            --bg-color: #FFF0F5;
+            --card-bg: #FFFFFF;
+            --text-main: #5C3A41;
+            --text-sub: #B09096;
+            --accent-color: #FF85A2;
+            --danger-color: #FF4D4D;
+            --success-color: #FF9EBB;
+            --border-color: #F5D5E0;
         }
 
         * {
             box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         body {
@@ -31,6 +44,7 @@
             justify-content: center;
             height: 100vh;
             overflow: hidden;
+            color: var(--text-main);
         }
 
         .app-container {
@@ -43,10 +57,9 @@
             position: relative;
         }
 
-        /* 顶部信息栏：大量留白，无边框 */
+        /* 顶部 */
         .header {
             padding: 30px 24px 10px;
-            background: transparent;
             text-align: left;
         }
 
@@ -73,20 +86,14 @@
             gap: 16px;
         }
 
-            .sub-info span {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-            }
-
-        /* 页面内容区 */
+        /* 内容区 */
         .content {
             flex: 1;
             overflow-y: auto;
             padding: 10px 24px;
             padding-bottom: 90px;
         }
-            /* 隐藏滚动条让界面更干净 */
+
             .content::-webkit-scrollbar {
                 display: none;
             }
@@ -112,13 +119,13 @@
             }
         }
 
-        /* 输入组件 */
+        /* 卡片 */
         .input-card {
             background: var(--card-bg);
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.02); /* 极微弱的阴影 */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
         }
 
         .input-group {
@@ -137,7 +144,7 @@
             font-weight: 500;
         }
 
-        input[type="number"], select {
+        input[type="number"], input[type="text"], select {
             width: 100%;
             padding: 12px 0;
             border: none;
@@ -147,7 +154,6 @@
             outline: none;
             color: var(--text-main);
             font-weight: 600;
-            transition: border-color 0.3s;
         }
 
         select {
@@ -155,11 +161,11 @@
             appearance: none;
         }
 
-            input[type="number"]:focus, select:focus {
-                border-bottom: 2px solid var(--text-main);
+            input:focus, select:focus {
+                border-bottom: 2px solid var(--accent-color);
             }
 
-        /* 按钮设计：纯黑胶囊状 */
+        /* 按钮 */
         button {
             width: 100%;
             padding: 16px;
@@ -172,7 +178,6 @@
             cursor: pointer;
             transition: transform 0.1s, opacity 0.2s;
             margin-top: 10px;
-            letter-spacing: 1px;
         }
 
             button:active {
@@ -184,17 +189,15 @@
             background: transparent;
             color: var(--text-sub);
             border: none;
-            box-shadow: none;
+            margin-top: 10px;
         }
 
-        /* 历史记录列表 */
+        /* 列表 */
         .section-title {
             font-size: 13px;
             font-weight: 600;
             color: var(--text-sub);
             margin: 24px 0 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .history-list {
@@ -244,18 +247,14 @@
             background: none;
             border: none;
             color: #ccc;
-            font-size: 14px;
+            font-size: 16px;
             padding: 0;
             cursor: pointer;
             width: auto;
             margin: 0;
         }
 
-            .delete-icon:hover {
-                color: var(--danger-color);
-            }
-
-        /* 日历部分极简调整 */
+        /* 日历 */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -272,42 +271,39 @@
             font-size: 14px;
             color: var(--text-sub);
             cursor: pointer;
-            transition: background 0.2s, color 0.2s;
         }
 
             .day-box.current {
                 background: var(--text-main);
-                color: white;
+                color: var(--card-bg);
                 font-weight: 600;
             }
 
             .day-box.green {
-                background: #EAF2EC;
+                background: rgba(43, 138, 62, 0.1);
                 color: var(--success-color);
                 font-weight: 600;
             }
 
             .day-box.red {
-                background: #FCEAEA;
+                background: rgba(229, 83, 83, 0.1);
                 color: var(--danger-color);
                 font-weight: 600;
             }
 
-        /* 底部导航栏：干净、通透 */
+        /* 底部导航 */
         .tab-bar {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
             height: 70px;
-            background: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.9);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding-bottom: env(safe-area-inset-bottom);
         }
 
         .tab-item {
@@ -317,8 +313,6 @@
             color: #C0C0C0;
             font-size: 11px;
             cursor: pointer;
-            transition: color 0.3s;
-            font-weight: 500;
             gap: 4px;
         }
 
@@ -327,13 +321,13 @@
             }
 
             .tab-item.active {
-                color: var(--text-main);
+                color: var(--accent-color);
             }
 
-        /* 图表容器 */
+        /* 图表 */
         #pieChart, #lineChart {
             width: 100%;
-            height: 240px;
+            height: 220px;
         }
 
         .chart-card {
@@ -342,15 +336,42 @@
             padding: 10px;
             margin-bottom: 20px;
         }
+
+        /* 情绪反馈弹窗 (Toast) */
+        #toast {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            text-align: center;
+            width: 80%;
+            backdrop-filter: blur(5px);
+        }
+
+            #toast.show {
+                opacity: 1;
+                transform: translateX(-50%) translateY(10px);
+            }
     </style>
 </head>
 <body>
 
     <div class="app-container">
+        <!-- 弹窗 -->
+        <div id="toast"></div>
 
-        <!-- 顶部余额信息 -->
         <div class="header">
-            <div class="label">当前总资产</div>
+            <div class="label">当前剩余总资产</div>
             <div class="money-display" id="headerTotalMoney">¥0.00</div>
             <div class="sub-info">
                 <span id="headerDaysLeft">距发钱 0 天</span>
@@ -358,7 +379,7 @@
             </div>
         </div>
 
-        <!-- 页面 1：记账 -->
+        <!-- 1. 记账页 -->
         <div class="content page active" id="page-record">
             <div class="input-card">
                 <div class="input-group">
@@ -368,11 +389,7 @@
                 <div class="input-group">
                     <label>消费分类</label>
                     <select id="categorySelect">
-                        <option value="餐饮">餐饮</option>
-                        <option value="交通">交通</option>
-                        <option value="购物">购物</option>
-                        <option value="娱乐">娱乐</option>
-                        <option value="其他">其他</option>
+                        <!-- 动态生成 -->
                     </select>
                 </div>
             </div>
@@ -382,35 +399,33 @@
             <ul class="history-list" id="recentHistoryList"></ul>
         </div>
 
-        <!-- 页面 2：日历 -->
+        <!-- 2. 日历页 -->
         <div class="content page" id="page-calendar">
             <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                 <div class="section-title" style="margin-top:0;">本月概览</div>
                 <button class="btn-text" onclick="nextDay()" style="width: auto; padding: 0; font-size: 12px;">下一日测试 ></button>
             </div>
             <div class="calendar-grid" id="calendarGrid"></div>
-
             <div class="section-title" id="calendarDetailTitle" style="margin-top: 30px;">明细</div>
-            <ul class="history-list" id="calendarDetailList">
-                <li style="justify-content:center; color:var(--text-sub); border:none;">点击上方日期查看</li>
-            </ul>
+            <ul class="history-list" id="calendarDetailList"></ul>
         </div>
 
-        <!-- 页面 3：统计 -->
+        <!-- 3. 统计页 -->
         <div class="content page" id="page-stats">
             <div class="section-title" style="margin-top:0;">分类占比</div>
             <div class="chart-card"><div id="pieChart"></div></div>
-
             <div class="section-title">支出趋势</div>
             <div class="chart-card"><div id="lineChart"></div></div>
         </div>
 
-        <!-- 页面 4：设置 -->
+        <!-- 4. 设置页 -->
         <div class="content page" id="page-settings">
             <div class="input-card">
                 <div class="input-group">
-                    <label>本周期初始总额 (元)</label>
+                    <label>当前手中剩余总额 (元)</label>
+                    <!-- 这里解决28号开始记账的问题 -->
                     <input type="number" id="totalMoneyInput" onchange="updateTotalMoney()">
+                    <div style="font-size: 11px; color: var(--text-sub); margin-top: 4px;">* 如果你是今天才开始记，请输入现在手里还剩多少钱</div>
                 </div>
                 <div class="input-group">
                     <label>目标存款 (元)</label>
@@ -422,50 +437,75 @@
                 </div>
             </div>
 
-            <button class="btn-outline" onclick="settlePeriod()" style="background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color);">结束本周期并结算</button>
-            <button class="btn-text" onclick="resetData()" style="margin-top: 16px; color: var(--danger-color);">清空所有数据</button>
+            <div class="input-card">
+                <div class="input-group">
+                    <label>自定义分类 (按回车添加)</label>
+                    <input type="text" id="newCategoryInput" placeholder="输入后按回车..." onkeypress="handleAddCategory(event)">
+                </div>
+                <div style="font-size: 12px; color: var(--text-sub);" id="categoryListDisplay"></div>
+            </div>
+
+            <div class="input-card">
+                <div class="input-group">
+                    <label>界面主题</label>
+                    <select id="themeSelect" onchange="changeTheme()">
+                        <option value="minimal">极简黑</option>
+                        <option value="pink">猛男粉</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>记账反馈模式</label>
+                    <select id="feedbackSelect" onchange="updateFeedbackMode()">
+                        <option value="encourage">鼓励版 (温柔)</option>
+                        <option value="toxic">毒舌版 (扎心)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-text" onclick="settlePeriod()" style="border: 1px solid var(--border-color); padding: 12px; border-radius: 24px; margin-bottom: 10px;">结束本周期并结算</button>
+            <button class="btn-text" onclick="resetData()" style="color: var(--danger-color);">清空所有数据</button>
         </div>
 
-        <!-- 底部导航栏 -->
+        <!-- 底部导航 -->
         <div class="tab-bar">
-            <div class="tab-item active" onclick="switchTab('record', this)">
-                <span class="icon">✏️</span><span>记账</span>
-            </div>
-            <div class="tab-item" onclick="switchTab('calendar', this)">
-                <span class="icon">📅</span><span>日历</span>
-            </div>
-            <div class="tab-item" onclick="switchTab('stats', this)">
-                <span class="icon">📊</span><span>统计</span>
-            </div>
-            <div class="tab-item" onclick="switchTab('settings', this)">
-                <span class="icon">⚙️</span><span>设置</span>
-            </div>
+            <div class="tab-item active" onclick="switchTab('record', this)"><span class="icon">✏️</span><span>记账</span></div>
+            <div class="tab-item" onclick="switchTab('calendar', this)"><span class="icon">📅</span><span>日历</span></div>
+            <div class="tab-item" onclick="switchTab('stats', this)"><span class="icon">📊</span><span>统计</span></div>
+            <div class="tab-item" onclick="switchTab('settings', this)"><span class="icon">⚙️</span><span>设置</span></div>
         </div>
     </div>
 
     <script>
             // --- 核心数据 ---
-            let state = JSON.parse(localStorage.getItem("ledgerStateMinimal")) || {
-                initialMoney: 3000,
-                totalMoney: 3000,
+            let state = JSON.parse(localStorage.getItem("ledgerStateV9")) || {
+                totalMoney: 3000, // 当前剩余总额
                 targetSave: 1000,
                 payDay: 15,
                 currentDate: getTodayString(),
                 records: [],
-                historyPeriods: []
+                categories: ["餐饮", "交通", "购物", "娱乐", "其他"],
+                theme: "minimal",
+                feedbackMode: "encourage"
             };
 
-            let viewingDate = null;
             let pieChartInstance, lineChartInstance;
 
             function init() {
-                document.getElementById("totalMoneyInput").value = state.initialMoney;
+                // 初始化 UI 数据
+                document.getElementById("totalMoneyInput").value = state.totalMoney;
                 document.getElementById("targetSave").value = state.targetSave;
                 document.getElementById("payDayInput").value = state.payDay;
+                document.getElementById("themeSelect").value = state.theme;
+                document.getElementById("feedbackSelect").value = state.feedbackMode;
 
+                // 应用主题
+                if(state.theme === 'pink') document.body.classList.add('theme-pink');
+
+                // 初始化图表
                 pieChartInstance = echarts.init(document.getElementById('pieChart'));
                 lineChartInstance = echarts.init(document.getElementById('lineChart'));
 
+                renderCategories();
                 renderAll();
             }
 
@@ -477,19 +517,14 @@
             function switchTab(pageId, element) {
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
                 document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-
                 document.getElementById('page-' + pageId).classList.add('active');
                 element.classList.add('active');
-
                 if(pageId === 'stats') {
-                    setTimeout(() => {
-                        pieChartInstance.resize();
-                        lineChartInstance.resize();
-                        renderCharts();
-                    }, 50);
+                    setTimeout(() => { pieChartInstance.resize(); lineChartInstance.resize(); renderCharts(); }, 50);
                 }
             }
 
+            // --- 额度计算核心逻辑 ---
             function getDaysLeft() {
                 let today = new Date(state.currentDate);
                 let currentDay = today.getDate();
@@ -500,14 +535,18 @@
 
             function getDailyQuota() {
                 let daysLeft = getDaysLeft();
+                // (当前剩余总额 - 目标存款) / 剩余天数
                 return (state.totalMoney - state.targetSave) / daysLeft;
             }
 
+            // --- 记账与反馈 ---
             function calculate() {
                 let spend = Number(document.getElementById("spendInput").value);
                 let category = document.getElementById("categorySelect").value;
 
-                if (!spend || spend <= 0) { alert("请输入金额"); return; }
+                if (!spend || spend <= 0) { showToast("请输入有效金额！"); return; }
+
+                let quota = getDailyQuota();
 
                 state.totalMoney -= spend;
                 state.records.unshift({
@@ -520,24 +559,97 @@
                 saveData();
                 renderAll();
                 document.getElementById("spendInput").value = "";
+
+                // 触发情绪反馈
+                triggerFeedback(spend, quota);
             }
 
-            function deleteRecord(id) {
-                if(!confirm("删除此记录？金额将退回。")) return;
-                let record = state.records.find(r => r.id === id);
-                if(record) {
-                    state.totalMoney += record.amount;
-                    state.records = state.records.filter(r => r.id !== id);
-                    saveData(); renderAll();
+            // 情绪反馈系统
+            function triggerFeedback(spend, quota) {
+                let msg = "";
+                // 如果今天花的钱小于基础额度的一半，奖励！
+                if (spend < quota * 0.5) {
+                    if (state.feedbackMode === 'encourage') {
+                        let good = ["太棒了！距离小目标又近了一步！", "省钱小能手就是你！", "非常克制，继续保持！", "你的钱包对你很满意。"];
+                        msg = good[Math.floor(Math.random() * good.length)];
+                    } else {
+                        let toxic = ["哟，太阳打西边出来了？今天居然没花钱。", "抠门鬼，算你厉害。", "这点钱够买什么？继续憋着吧。"];
+                        msg = toxic[Math.floor(Math.random() * toxic.length)];
+                    }
                 }
+                // 如果花的钱超过了基础额度
+                else if (spend > quota) {
+                    if (state.feedbackMode === 'encourage') {
+                        let warn = ["哎呀，今天稍微透支了一点点，明天我们省回来！", "没关系，偶尔犒劳一下自己。明天继续加油！"];
+                        msg = warn[Math.floor(Math.random() * warn.length)];
+                    } else {
+                        let toxic = ["败家玩意！明天准备喝西北风吧！", "你是来给资本家送钱的吗？", "花超了吧？我就静静地看着你月底吃土。", "手剁了吧，留着也没用。"];
+                        msg = toxic[Math.floor(Math.random() * toxic.length)];
+                    }
+                }
+                // 正常消费
+                else {
+                    if (state.feedbackMode === 'encourage') {
+                        let normal = ["记好啦，继续保持收支平衡哦！", "刚刚好，理财大师就是你。", "稳步前进，非常健康。"];
+                        msg = normal[Math.floor(Math.random() * normal.length)];
+                    } else {
+                        let toxic = ["算你还有点理智，没把钱全花光。", "还凑合，但离破产也不远了。", "嗯，正常操作，没什么好夸的。"];
+                        msg = toxic[Math.floor(Math.random() * toxic.length)];
+                    }
+                }
+                showToast(msg);
+            }
+
+            function showToast(text) {
+                let toast = document.getElementById("toast");
+                toast.innerText = text;
+                toast.classList.add("show");
+                setTimeout(() => { toast.classList.remove("show"); }, 2500);
+            }
+
+            // --- 设置与自定义 ---
+            function handleAddCategory(e) {
+                if(e.key === 'Enter') {
+                    let input = document.getElementById("newCategoryInput");
+                    let val = input.value.trim();
+                    if(val && !state.categories.includes(val)) {
+                        state.categories.push(val);
+                        input.value = "";
+                        saveData();
+                        renderCategories();
+                    }
+                }
+            }
+
+            function renderCategories() {
+                let select = document.getElementById("categorySelect");
+                select.innerHTML = "";
+                state.categories.forEach(c => {
+                    select.innerHTML += `<option value="${c}">${c}</option>`;
+                });
+
+                let display = document.getElementById("categoryListDisplay");
+                display.innerHTML = state.categories.join(" · ");
+            }
+
+            function changeTheme() {
+                let t = document.getElementById("themeSelect").value;
+                state.theme = t;
+                if(t === 'pink') document.body.classList.add('theme-pink');
+                else document.body.classList.remove('theme-pink');
+                saveData();
+                renderCharts(); // 图表颜色也要更新
+            }
+
+            function updateFeedbackMode() {
+                state.feedbackMode = document.getElementById("feedbackSelect").value;
+                saveData();
             }
 
             function updateTotalMoney() {
                 let val = Number(document.getElementById("totalMoneyInput").value);
                 if(val > 0) {
-                    let spent = state.records.reduce((sum, r) => sum + r.amount, 0);
-                    state.initialMoney = val;
-                    state.totalMoney = val - spent;
+                    state.totalMoney = val;
                     saveData(); renderAll();
                 }
             }
@@ -552,17 +664,26 @@
                 saveData(); renderAll();
             }
 
-            function settlePeriod() {
-                if(!confirm(`结束本周期？剩余 ¥${state.totalMoney.toFixed(2)} 将存入历史。`)) return;
-                let totalSpent = state.records.reduce((sum, r) => sum + r.amount, 0);
-                state.historyPeriods.push({ startDate: state.currentDate, initialMoney: state.initialMoney, totalSpent: totalSpent, savedMoney: state.totalMoney });
-                state.records = [];
-                state.totalMoney = state.initialMoney;
-                state.currentDate = getTodayString();
-                saveData(); renderAll();
-                alert("结算成功，已开启新周期。");
+            function deleteRecord(id) {
+                if(!confirm("删除此记录？")) return;
+                let record = state.records.find(r => r.id === id);
+                if(record) {
+                    state.totalMoney += record.amount;
+                    state.records = state.records.filter(r => r.id !== id);
+                    saveData(); renderAll();
+                }
             }
 
+            function settlePeriod() {
+                if(!confirm(`结束本周期？剩余 ¥${state.totalMoney.toFixed(2)} 将存入历史。`)) return;
+                state.records = [];
+                state.totalMoney = Number(document.getElementById("totalMoneyInput").value) || 3000;
+                state.currentDate = getTodayString();
+                saveData(); renderAll();
+                showToast("新周期已开启！");
+            }
+
+            // --- 渲染模块 ---
             function renderAll() {
                 renderHeader();
                 renderRecentHistory();
@@ -572,31 +693,22 @@
 
             function renderHeader() {
                 let quota = getDailyQuota();
-                let daysLeft = getDaysLeft();
                 document.getElementById("headerTotalMoney").innerText = `¥${state.totalMoney.toFixed(2)}`;
-                document.getElementById("headerDaysLeft").innerText = `距发钱 ${daysLeft} 天`;
-
+                document.getElementById("headerDaysLeft").innerText = `距发钱 ${getDaysLeft()} 天`;
                 let quotaEl = document.getElementById("headerDailyQuota");
                 quotaEl.innerText = `明日预算 ¥${quota > 0 ? quota.toFixed(2) : '0.00'}`;
-                quotaEl.style.color = quota > 0 ? 'var(--success-color)' : 'var(--danger-color)';
+                quotaEl.style.color = quota > 0 ? 'var(--accent-color)' : 'var(--danger-color)';
             }
 
             function renderRecentHistory() {
                 let ul = document.getElementById("recentHistoryList");
                 ul.innerHTML = state.records.length === 0 ? "<li style='justify-content:center; color:var(--text-sub); border:none;'>暂无记录</li>" : "";
-
                 for (let i = 0; i < Math.min(state.records.length, 5); i++) {
                     let r = state.records[i];
                     ul.innerHTML += `
                         <li>
-                            <div class="li-left">
-                                <span class="li-category">${r.category}</span>
-                                <span class="li-date">${r.date}</span>
-                            </div>
-                            <div class="li-right">
-                                <span class="li-amount">-¥${r.amount.toFixed(2)}</span>
-                                <button class="delete-icon" onclick="deleteRecord(${r.id})">×</button>
-                            </div>
+                            <div class="li-left"><span class="li-category">${r.category}</span><span class="li-date">${r.date}</span></div>
+                            <div class="li-right"><span class="li-amount">-¥${r.amount.toFixed(2)}</span><button class="delete-icon" onclick="deleteRecord(${r.id})">×</button></div>
                         </li>`;
                 }
             }
@@ -612,12 +724,10 @@
                 for (let i = 1; i <= daysInMonth; i++) {
                     let dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                     let daySpent = state.records.filter(r => r.date === dateStr).reduce((sum, r) => sum + r.amount, 0);
-
                     let box = document.createElement("div");
                     box.className = "day-box";
                     box.innerText = i;
                     box.onclick = () => viewCalendarDay(dateStr);
-
                     if (dateStr === state.currentDate) box.classList.add("current");
                     else if (daySpent > 0) {
                         if (daySpent > quota) box.classList.add("red");
@@ -628,22 +738,15 @@
             }
 
             function viewCalendarDay(dateStr) {
-                viewingDate = dateStr;
                 document.getElementById("calendarDetailTitle").innerText = `${dateStr} 明细`;
                 let list = document.getElementById("calendarDetailList");
                 let dayRecords = state.records.filter(r => r.date === dateStr);
-
-                list.innerHTML = dayRecords.length === 0 ? "<li style='justify-content:center; color:var(--text-sub); border:none;'>没有消费记录</li>" : "";
+                list.innerHTML = dayRecords.length === 0 ? "<li style='justify-content:center; color:var(--text-sub); border:none;'>没有消费</li>" : "";
                 dayRecords.forEach(r => {
                     list.innerHTML += `
                         <li>
-                            <div class="li-left">
-                                <span class="li-category">${r.category}</span>
-                            </div>
-                            <div class="li-right">
-                                <span class="li-amount">-¥${r.amount.toFixed(2)}</span>
-                                <button class="delete-icon" onclick="deleteRecord(${r.id})">×</button>
-                            </div>
+                            <div class="li-left"><span class="li-category">${r.category}</span></div>
+                            <div class="li-right"><span class="li-amount">-¥${r.amount.toFixed(2)}</span><button class="delete-icon" onclick="deleteRecord(${r.id})">×</button></div>
                         </li>`;
                 });
             }
@@ -651,71 +754,42 @@
             function renderCharts() {
                 if(!pieChartInstance || !lineChartInstance) return;
 
-                // 极简高级配色：单色系
-                let primaryColor = '#111111';
-                let gradientColor = ['#333333', '#555555', '#777777', '#999999', '#BBBBBB'];
+                let isPink = state.theme === 'pink';
+                let mainColor = isPink ? '#FF85A2' : '#111111';
+                let gradientColor = isPink ? ['#FF85A2', '#FFA6C9', '#FFC0CB', '#FFD1DC', '#FFE4E1'] : ['#333333', '#555555', '#777777', '#999999', '#BBBBBB'];
 
-                // 1. 环形图
+                // 环形图
                 let categoryData = {};
-                state.records.forEach(r => {
-                    categoryData[r.category] = (categoryData[r.category] || 0) + r.amount;
-                });
+                state.records.forEach(r => { categoryData[r.category] = (categoryData[r.category] || 0) + r.amount; });
                 let pieData = Object.keys(categoryData).map(key => ({ name: key, value: categoryData[key] }));
-                if(pieData.length === 0) pieData = [{name: '暂无消费', value: 1}];
+                if(pieData.length === 0) pieData = [{name: '暂无', value: 1}];
 
                 pieChartInstance.setOption({
-                    tooltip: { trigger: 'item', backgroundColor: '#111', textStyle: { color: '#fff' } },
+                    tooltip: { trigger: 'item' },
                     color: gradientColor,
                     series: [{
-                        type: 'pie', radius: ['50%', '75%'],
-                        avoidLabelOverlap: false,
-                        itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
-                        label: { show: false },
-                        emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold', color: '#111' } },
-                        data: pieData
+                        type: 'pie', radius: ['50%', '75%'], itemStyle: { borderRadius: 6, borderColor: isPink ? '#FFF0F5' : '#F7F8FA', borderWidth: 2 },
+                        label: { show: false }, data: pieData
                     }]
                 });
 
-                // 2. 折线图
+                // 折线图
                 let dailyData = {};
-                state.records.forEach(r => {
-                    dailyData[r.date] = (dailyData[r.date] || 0) + r.amount;
-                });
+                state.records.forEach(r => { dailyData[r.date] = (dailyData[r.date] || 0) + r.amount; });
                 let dates = Object.keys(dailyData).sort();
                 let values = dates.map(d => dailyData[d]);
-                let quota = getDailyQuota();
 
                 lineChartInstance.setOption({
-                    tooltip: { trigger: 'axis', backgroundColor: '#111', textStyle: { color: '#fff' } },
+                    tooltip: { trigger: 'axis' },
                     grid: { top: 20, bottom: 20, left: 10, right: 10 },
-                    xAxis: {
-                        type: 'category', data: dates.map(d => d.slice(8)), // 只显示日
-                        axisLine: { lineStyle: { color: '#eee' } },
-                        axisTick: { show: false },
-                        axisLabel: { color: '#888', fontSize: 11 }
-                    },
-                    yAxis: {
-                        type: 'value', splitLine: { lineStyle: { type: 'dashed', color: '#f0f0f0' } },
-                        axisLabel: { color: '#888', fontSize: 11 }
-                    },
+                    xAxis: { type: 'category', data: dates.map(d => d.slice(8)), axisTick: {show:false}, axisLine: {show:false}, axisLabel: {color: '#888'} },
+                    yAxis: { type: 'value', splitLine: { lineStyle: { type: 'dashed', color: 'rgba(0,0,0,0.05)' } }, axisLabel: {color: '#888'} },
                     series: [{
-                        name: '每日支出',
-                        type: 'line',
-                        smooth: true,
-                        data: values,
-                        itemStyle: { color: primaryColor },
-                        lineStyle: { width: 2 },
-                        areaStyle: {
-                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                { offset: 0, color: 'rgba(17,17,17,0.1)' },
-                                { offset: 1, color: 'rgba(17,17,17,0)' }
-                            ])
-                        },
-                        markLine: {
-                            data: [{ yAxis: quota }],
-                            lineStyle: { color: '#E55353', type: 'dashed', width: 1.5 },
-                            label: { show: false }
-                        }
+                        type: 'line', smooth: true, data: values, itemStyle: { color: mainColor }, lineStyle: { width: 3 },
+                        areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: isPink ? 'rgba(255,133,162,0.3)' : 'rgba(17,17,17,0.1)' },
+                            { offset: 1, color: 'rgba(0,0,0,0)' }
+                        ])}
                     }]
                 });
             }
@@ -727,9 +801,9 @@
                 saveData(); renderAll();
             }
 
-            function saveData() { localStorage.setItem("ledgerStateMinimal", JSON.stringify(state)); }
+            function saveData() { localStorage.setItem("ledgerStateV9", JSON.stringify(state)); }
             function resetData() {
-                if (confirm("确定要彻底清空所有数据吗？")) { localStorage.clear(); location.reload(); }
+                if (confirm("确定要清空所有数据吗？")) { localStorage.clear(); location.reload(); }
             }
 
             init();
