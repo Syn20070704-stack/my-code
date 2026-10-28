@@ -3,85 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的每日额度</title>
+    <title>每日额度管家</title>
     <style>
-        /* 这里就是 CSS，给网页化妆的 */
+        :root {
+            --bg-color: #f2f2f7;
+            --card-bg: #ffffff;
+            --text-main: #1c1c1e;
+            --text-sub: #8e8e93;
+            --accent-color: #34c759;
+            --danger-color: #ff3b30;
+        }
+
         body {
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background-color: #f0f4f8;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+            background-color: var(--bg-color);
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
+            align-items: flex-start;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px 0;
         }
 
         .card {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            width: 320px;
-            text-align: center;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+            width: 340px;
         }
 
         h1 {
-            font-size: 22px;
-            color: #333;
+            font-size: 20px;
+            text-align: center;
             margin-top: 0;
         }
 
-        .input-group {
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-sub);
             margin-bottom: 15px;
-            text-align: left;
+        }
+
+            .settings-row input {
+                width: 50px;
+                padding: 5px;
+                border-radius: 8px;
+                border: 1px solid #ccc;
+                text-align: center;
+            }
+
+        .input-group {
+            margin-bottom: 12px;
         }
 
         label {
-            font-size: 14px;
-            color: #666;
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 4px;
             display: block;
-            margin-bottom: 5px;
         }
 
-        input {
-            width: 90%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+        input[type="number"], select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            background: #f2f2f7;
+            border-radius: 12px;
             font-size: 16px;
+            box-sizing: border-box;
             outline: none;
         }
 
-            input:focus {
-                border-color: #4CAF50;
-            }
-
         button {
             width: 100%;
-            padding: 12px;
-            background-color: #4CAF50;
+            padding: 14px;
+            background-color: var(--accent-color);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
             margin-top: 10px;
-            transition: background 0.3s;
         }
 
-            button:hover {
-                background-color: #45a049;
+        .result-box {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            display: none;
+            text-align: center;
+        }
+
+        /* 简易月历样式 */
+        .calendar-section {
+            margin-top: 25px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .calendar-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+
+        .day-box {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 12px;
+            background: #f2f2f7;
+            color: var(--text-sub);
+        }
+
+            .day-box.current {
+                border: 2px solid var(--text-main);
+                color: var(--text-main);
+                font-weight: bold;
             }
 
-        .result-box {
+            .day-box.green {
+                background: #e8f5e9;
+                color: #2e7d32;
+            }
+
+            .day-box.red {
+                background: #ffebee;
+                color: #c62828;
+            }
+
+        .history-section {
             margin-top: 20px;
-            padding: 15px;
-            background-color: #e8f5e9;
-            border-radius: 10px;
-            color: #2e7d32;
-            font-weight: bold;
-            line-height: 1.5;
-            display: none; /* 默认隐藏，算完再显示 */
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        /* 测试用的调试按钮 */
+        .debug-btn {
+            background: #e5e5ea;
+            color: #333;
+            font-size: 12px;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -90,91 +181,214 @@
     <div class="card">
         <h1>💰 每日额度管家</h1>
 
-        <div class="input-group">
-            <label>本月目标存款 (元)：</label>
-            <input type="number" id="targetSave" placeholder="例如：500">
+        <div class="settings-row">
+            <span>每月发薪日：</span>
+            <input type="number" id="payDayInput" value="15" min="1" max="28" onchange="updatePayDay()"> 号
         </div>
 
         <div class="input-group">
-            <label>今天花了多少钱 (元)：</label>
-            <input type="number" id="spendInput" placeholder="例如：40">
+            <label>本月目标存款 (元)</label>
+            <input type="number" id="targetSave" placeholder="例如：1000">
         </div>
 
-        <button onclick="calculate()">确认记账</button>
-
-        <div class="result-box" id="resultBox">
-            <!-- 结果会显示在这里 -->
+        <div class="input-group">
+            <label>今日消费金额 (元)</label>
+            <input type="number" id="spendInput" placeholder="0.00">
         </div>
+
+        <div class="input-group">
+            <label>消费分类</label>
+            <select id="categorySelect">
+                <option value="🍚 餐饮">🍚 餐饮</option>
+                <option value="🚇 交通">🚇 交通</option>
+                <option value="🛍️ 购物">🛍️ 购物</option>
+                <option value="🎮 娱乐">🎮 娱乐</option>
+            </select>
+        </div>
+
+        <button onclick="calculate()">记一笔</button>
+
+        <!-- 调试按钮：用来模拟时间流逝 -->
+        <button class="debug-btn" onclick="nextDay()">⏳ (调试) 模拟时间到明天</button>
+
+        <div class="result-box" id="resultBox"></div>
+
+        <!-- 月历视图 -->
+        <div class="calendar-section">
+            <div class="calendar-title">📅 本月额度盈亏</div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+
+        <div class="history-section">
+            <div class="calendar-title">📝 消费明细</div>
+            <ul id="historyList"></ul>
+        </div>
+
+        <button class="debug-btn" onclick="resetData()" style="background:#ffebee; color:#c62828; margin-top: 20px;">清空所有数据</button>
     </div>
 
     <script>
-            // 从本地读取数据（如果没有，默认3000元和30天）
-            let totalMoney = Number(localStorage.getItem("totalMoney")) || 3000;
-            let leftDays = Number(localStorage.getItem("leftDays")) || 30;
-            let targetSave = Number(localStorage.getItem("targetSave")) || 0;
+            // --- 核心数据结构 ---
+            // 我们用真实的日期来存数据
+            let state = JSON.parse(localStorage.getItem("ledgerState")) || {
+                totalMoney: 3000,       // 总资产
+                targetSave: 1000,       // 目标存款
+                payDay: 15,             // 发薪日
+                currentDate: getTodayString(), // 当前系统时间
+                records: []             // 记录 { date: "2026-10-15", amount: 40, category: "🍚" }
+            };
 
-            // 页面加载时先显示一下目前额度
-            updateUI("欢迎回来！今日预算已就绪。");
+            // 初始化UI
+            document.getElementById("payDayInput").value = state.payDay;
+            document.getElementById("targetSave").value = state.targetSave;
+
+            updateUI();
+            renderCalendar();
+            renderHistory();
+
+            // 获取今天的日期字符串 "YYYY-MM-DD"
+            function getTodayString() {
+                let d = new Date();
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            }
+
+            // 计算距离下一个发薪日还有多少天
+            function getDaysLeft() {
+                let today = new Date(state.currentDate);
+                let currentDay = today.getDate();
+                let daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+
+                if (currentDay <= state.payDay) {
+                    // 还没到发薪日，天数就是发薪日 - 今天
+                    return state.payDay - currentDay + 1;
+                } else {
+                    // 这个月发薪日过了，要算到下个月发薪日
+                    return (daysInMonth - currentDay) + state.payDay + 1;
+                }
+            }
+
+            // 计算每日基础额度 (总资金 - 目标存款) / 剩余天数
+            function getDailyQuota() {
+                let daysLeft = getDaysLeft();
+                return (state.totalMoney - state.targetSave) / daysLeft;
+            }
 
             function calculate() {
-                let spendInput = document.getElementById("spendInput").value;
-                let targetInput = document.getElementById("targetSave").value;
-                let spend = Number(spendInput);
-                let target = Number(targetInput);
+                let spend = Number(document.getElementById("spendInput").value);
+                let category = document.getElementById("categorySelect").value;
 
-                if (!spendInput || spend < 0) {
-                    alert("请输入有效的消费金额！");
-                    return;
-                }
+                if (!spend || spend <= 0) { alert("请输入有效金额！"); return; }
 
-                if (leftDays <= 0) {
-                    alert("本月已结束，不能再记账啦！");
-                    return;
-                }
+                // 1. 扣钱
+                state.totalMoney -= spend;
 
-                // 更新目标存款
-                if (target > 0) {
-                    targetSave = target;
-                }
+                // 2. 记录账单 (带上今天的日期)
+                state.records.unshift({
+                    date: state.currentDate,
+                    amount: spend,
+                    category: category
+                });
 
-                // 核心计算
-                totalMoney = totalMoney - spend;
-                leftDays = leftDays - 1;
-
-                // 保存到本地
-                localStorage.setItem("totalMoney", totalMoney);
-                localStorage.setItem("leftDays", leftDays);
-                localStorage.setItem("targetSave", targetSave);
-
-                updateUI("记账成功！");
-
-                // 清空输入框
+                saveData();
+                updateUI();
+                renderCalendar();
+                renderHistory();
                 document.getElementById("spendInput").value = "";
             }
 
-            function updateUI(msg) {
-                let resultBox = document.getElementById("resultBox");
-                resultBox.style.display = "block"; // 显示结果框
+            // 模拟时间流逝（调试用）
+            function nextDay() {
+                let d = new Date(state.currentDate);
+                d.setDate(d.getDate() + 1); // 日期+1
+                state.currentDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                saveData();
+                updateUI();
+                renderCalendar();
+                alert("时间已来到：" + state.currentDate);
+            }
 
-                if (leftDays <= 0) {
-                    resultBox.innerHTML = `${msg}<br>🎉 本月结束！<br>最终余额：${totalMoney.toFixed(2)} 元`;
-                    resultBox.style.backgroundColor = "#ffebee";
-                    resultBox.style.color = "#c62828";
+            function updatePayDay() {
+                state.payDay = Number(document.getElementById("payDayInput").value);
+                saveData();
+                updateUI();
+            }
+
+            function updateUI() {
+                let quota = getDailyQuota();
+                let daysLeft = getDaysLeft();
+                let todaySpent = state.records.filter(r => r.date === state.currentDate).reduce((sum, r) => sum + r.amount, 0);
+
+                let box = document.getElementById("resultBox");
+                box.style.display = "block";
+
+                if (quota < 0) {
+                    box.innerHTML = `⚠️ 余额不足以支撑目标存款！<br>当前总资产：${state.totalMoney}元`;
+                    box.style.background = "#ffebee"; box.style.color = "#c62828";
                 } else {
-                    // 计算明天的额度： (总余额 - 目标存款) / 剩余天数
-                    let usableMoney = totalMoney - targetSave;
-                    let tomorrowQuota = usableMoney / leftDays;
+                    box.innerHTML = `今日已花：${todaySpent} 元<br>基础日额度：${quota.toFixed(2)} 元<br>距离下次发钱还有 ${daysLeft} 天`;
+                    box.style.background = "#e8f5e9"; box.style.color = "#2e7d32";
+                }
+            }
 
-                    // 如果为了存钱，每天额度变成负数了，说明钱不够存了
-                    if (tomorrowQuota < 0) {
-                        resultBox.innerHTML = `${msg}<br>⚠️ 警告：目标存款过高，余额不足！<br>剩余总金额：${totalMoney.toFixed(2)} 元`;
-                        resultBox.style.backgroundColor = "#ffebee";
-                        resultBox.style.color = "#c62828";
-                    } else {
-                        resultBox.innerHTML = `${msg}<br>剩余总金额：${totalMoney.toFixed(2)} 元<br>目标存款：${targetSave} 元<br><span style="font-size:18px; color:#1b5e20;">明天可花：${tomorrowQuota.toFixed(2)} 元</span>`;
-                        resultBox.style.backgroundColor = "#e8f5e9";
-                        resultBox.style.color = "#2e7d32";
+            // 渲染月历（只渲染这个月的 1号到月底）
+            function renderCalendar() {
+                let grid = document.getElementById("calendarGrid");
+                grid.innerHTML = "";
+
+                let d = new Date(state.currentDate);
+                let year = d.getFullYear();
+                let month = d.getMonth();
+                let daysInMonth = new Date(year, month + 1, 0).getDate();
+                let quota = getDailyQuota();
+
+                // 循环这个月的每一天
+                for (let i = 1; i <= daysInMonth; i++) {
+                    let dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+
+                    // 计算这一天花了多少钱
+                    let daySpent = state.records.filter(r => r.date === dateStr).reduce((sum, r) => sum + r.amount, 0);
+
+                    let box = document.createElement("div");
+                    box.className = "day-box";
+                    box.innerText = i;
+
+                    // 如果是今天，高亮边框
+                    if (dateStr === state.currentDate) {
+                        box.classList.add("current");
                     }
+
+                    // 红绿块逻辑：只有花过钱的才算盈亏
+                    if (daySpent > 0) {
+                        if (daySpent > quota) {
+                            box.classList.add("red"); // 超支
+                        } else {
+                            box.classList.add("green"); // 节约
+                        }
+                    }
+                    grid.appendChild(box);
+                }
+            }
+
+            function renderHistory() {
+                let ul = document.getElementById("historyList");
+                ul.innerHTML = state.records.length === 0 ? "<li style='justify-content:center;color:#999;'>暂无记录</li>" : "";
+
+                // 只显示最近 5 条
+                for (let i = 0; i < Math.min(state.records.length, 5); i++) {
+                    let r = state.records[i];
+                    let li = document.createElement("li");
+                    li.innerHTML = `<span>${r.category.split(' ')[0]} ${r.category.split(' ')[1]}</span> <span style="color:#c62828">-${r.amount}元 (${r.date.slice(5)})</span>`;
+                    ul.appendChild(li);
+                }
+            }
+
+            function saveData() {
+                localStorage.setItem("ledgerState", JSON.stringify(state));
+            }
+
+            function resetData() {
+                if (confirm("确定要清空所有数据吗？")) {
+                    localStorage.clear(); location.reload();
                 }
             }
     </script>
