@@ -1,44 +1,183 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>大学生记账本</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的每日额度</title>
+    <style>
+        /* 这里就是 CSS，给网页化妆的 */
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 320px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 22px;
+            color: #333;
+            margin-top: 0;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            font-size: 14px;
+            color: #666;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+            input:focus {
+                border-color: #4CAF50;
+            }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+
+            button:hover {
+                background-color: #45a049;
+            }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border-radius: 10px;
+            color: #2e7d32;
+            font-weight: bold;
+            line-height: 1.5;
+            display: none; /* 默认隐藏，算完再显示 */
+        }
+    </style>
 </head>
 <body>
-    <h1>我的每日额度</h1>
-    
-    <!-- 输入框 -->
-    <p>今天花了多少钱：<input type="number" id="spendInput"></p>
-    
-    <!-- 按钮 -->
-    <button onclick="calculate()">记账并计算明天额度</button>
-    
-    <!-- 显示结果 -->
-    <h2 id="resultText">当前额度：100 元/天</h2>
+
+    <div class="card">
+        <h1>💰 每日额度管家</h1>
+
+        <div class="input-group">
+            <label>本月目标存款 (元)：</label>
+            <input type="number" id="targetSave" placeholder="例如：500">
+        </div>
+
+        <div class="input-group">
+            <label>今天花了多少钱 (元)：</label>
+            <input type="number" id="spendInput" placeholder="例如：40">
+        </div>
+
+        <button onclick="calculate()">确认记账</button>
+
+        <div class="result-box" id="resultBox">
+            <!-- 结果会显示在这里 -->
+        </div>
+    </div>
 
     <script>
-        // 初始数据（假设每月3000，今天第一天，所以有3000余额和30天）
-        let totalMoney = 3000;
-        let leftDays = 30;
-        
-        function calculate() {
-            // 1. 获取你输入的花费金额
-            let spend = document.getElementById("spendInput").value;
-            
-            // 把文字转成数字
-            spend = Number(spend); 
+            // 从本地读取数据（如果没有，默认3000元和30天）
+            let totalMoney = Number(localStorage.getItem("totalMoney")) || 3000;
+            let leftDays = Number(localStorage.getItem("leftDays")) || 30;
+            let targetSave = Number(localStorage.getItem("targetSave")) || 0;
 
-            // 2. 扣除今天的钱，天数减1
-            totalMoney = totalMoney - spend;
-            leftDays = leftDays - 1;
+            // 页面加载时先显示一下目前额度
+            updateUI("欢迎回来！今日预算已就绪。");
 
-            // 3. 核心算法：计算明天的额度
-            let tomorrowQuota = totalMoney / leftDays;
+            function calculate() {
+                let spendInput = document.getElementById("spendInput").value;
+                let targetInput = document.getElementById("targetSave").value;
+                let spend = Number(spendInput);
+                let target = Number(targetInput);
 
-            // 4. 把结果显示在网页上
-            document.getElementById("resultText").innerText = 
-                "剩余总金额：" + totalMoney + " 元，剩余 " + leftDays + " 天，明天的额度是：" + tomorrowQuota.toFixed(2) + " 元/天";
-        }
+                if (!spendInput || spend < 0) {
+                    alert("请输入有效的消费金额！");
+                    return;
+                }
+
+                if (leftDays <= 0) {
+                    alert("本月已结束，不能再记账啦！");
+                    return;
+                }
+
+                // 更新目标存款
+                if (target > 0) {
+                    targetSave = target;
+                }
+
+                // 核心计算
+                totalMoney = totalMoney - spend;
+                leftDays = leftDays - 1;
+
+                // 保存到本地
+                localStorage.setItem("totalMoney", totalMoney);
+                localStorage.setItem("leftDays", leftDays);
+                localStorage.setItem("targetSave", targetSave);
+
+                updateUI("记账成功！");
+
+                // 清空输入框
+                document.getElementById("spendInput").value = "";
+            }
+
+            function updateUI(msg) {
+                let resultBox = document.getElementById("resultBox");
+                resultBox.style.display = "block"; // 显示结果框
+
+                if (leftDays <= 0) {
+                    resultBox.innerHTML = `${msg}<br>🎉 本月结束！<br>最终余额：${totalMoney.toFixed(2)} 元`;
+                    resultBox.style.backgroundColor = "#ffebee";
+                    resultBox.style.color = "#c62828";
+                } else {
+                    // 计算明天的额度： (总余额 - 目标存款) / 剩余天数
+                    let usableMoney = totalMoney - targetSave;
+                    let tomorrowQuota = usableMoney / leftDays;
+
+                    // 如果为了存钱，每天额度变成负数了，说明钱不够存了
+                    if (tomorrowQuota < 0) {
+                        resultBox.innerHTML = `${msg}<br>⚠️ 警告：目标存款过高，余额不足！<br>剩余总金额：${totalMoney.toFixed(2)} 元`;
+                        resultBox.style.backgroundColor = "#ffebee";
+                        resultBox.style.color = "#c62828";
+                    } else {
+                        resultBox.innerHTML = `${msg}<br>剩余总金额：${totalMoney.toFixed(2)} 元<br>目标存款：${targetSave} 元<br><span style="font-size:18px; color:#1b5e20;">明天可花：${tomorrowQuota.toFixed(2)} 元</span>`;
+                        resultBox.style.backgroundColor = "#e8f5e9";
+                        resultBox.style.color = "#2e7d32";
+                    }
+                }
+            }
     </script>
+
 </body>
 </html>
